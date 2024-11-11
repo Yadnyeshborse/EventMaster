@@ -1,0 +1,119 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Edit Method</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div align="center">-->
+<!--    <div>-->
+<!--        <h1>Post Method</h1>-->
+<!--        <form role="form"-->
+<!--              method="post"-->
+<!--              th:action="@{/clubs/{clubId}/edit(clubId=${club.id})}"-->
+<!--              th:object="${club}">-->
+
+<!--            &lt;!&ndash; Corrected hidden input for ID &ndash;&gt;-->
+<!--            <input type="hidden" th:field="*{id}">-->
+
+<!--            &lt;!&ndash; Optional Edit Link (if needed separately) &ndash;&gt;-->
+<!--            <a class="btn btn-primary"-->
+<!--               th:href="@{/clubs/{clubId}/edit(clubId=${club.id})}">-->
+<!--                Edit-->
+<!--            </a>-->
+<!--<div>-->
+<!--            <label>ID</label>-->
+<!--            <input type="text" placeholder="ID" th:field="*{id}" readonly /><br/>-->
+<!--    <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>-->
+<!--</div>-->
+<!--<div>-->
+<!--            <label>Content</label>-->
+<!--            <input type="text" placeholder="Content" th:field="*{content}" /><br/>-->
+<!--    <p th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>-->
+<!--</div>-->
+<!--            <label>URL</label>-->
+<!--            <input type="text" placeholder="URL" th:field="*{photoUrl}" /><br/>-->
+
+<!--            <label>Title</label>-->
+<!--            <input type="text" placeholder="Title" th:field="*{title}" /><br/>-->
+
+<!--            <button type="submit">Submit</button>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Club Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow p-4">
+                <h1 class="text-center mb-4">Edit Club Details</h1>
+                <form role="form" method="post" enctype="multipart/form-data"
+                      th:action="@{/clubs/{clubId}/edit(clubId=${club.id})}"
+                      th:object="${club}">
+
+                    <!-- Hidden input for ID -->
+                    <input type="hidden" th:field="*{id}">
+
+                    <!-- ID Field -->
+                    <div class="mb-3">
+                        <label class="form-label">ID</label>
+                        <input type="text" class="form-control" placeholder="ID" th:field="*{id}" readonly />
+
+                    </div>
+
+                    <!-- Title Field with Error Handling -->
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" placeholder="Title" th:field="*{title}" />
+                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+
+                    </div>
+
+                    <!-- Content Field with Error Handling -->
+                    <div class="mb-3">
+                        <label class="form-label">Content</label>
+                        <input type="text" class="form-control" placeholder="Content" th:field="*{content}" />
+                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+                    </div>
+
+                    <!-- Description Field -->
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" rows="3" placeholder="Enter a brief description" th:field="*{description}"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Upload New Image</label>
+                        <input type="file" class="form-control" name="photo">
+                    </div>
+
+
+                    <!-- Optional Edit Link (for navigation) -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a class="btn btn-secondary" th:href="@{/clubs/{clubId}/edit(clubId=${club.id})}">
+                            Edit
+                        </a>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

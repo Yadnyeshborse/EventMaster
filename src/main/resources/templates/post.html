@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Method</title>
+</head>
+<body>
+<div align="center">
+    <div>
+        <h1>Post Method</h1>
+        <form role="form"
+              method="post"
+              th:action="@{/post}"
+              th:object="${clubForm}">
+            <label>ID</label>
+            <input type="text" placeholder="ID" th:field="*{id}" /><br/>
+
+            <label>Content</label>
+            <input type="text" placeholder="content" th:field="*{content}" /><br/>
+
+            <label>URL</label>
+            <input type="text" placeholder="url" th:field="*{photoUrl}" /><br/>
+
+            <label>Title</label>
+            <input type="text" placeholder="title" th:field="*{title}" /><br/>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

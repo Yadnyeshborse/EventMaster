@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">ImageUpload</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Display the flash attribute message if available -->
+    <th:block th:if="${session.msg}">
+        <p class="text-center fs-4 text-success">[[${session.msg}]]</p>
+        <p class="text-center fs-4 text-success">[[${session.fail}]]</p>
+    </th:block>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3 mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <form action="imageUpload" enctype="multipart/form-data" method="post">
+                        <div class="mb-3">
+                            <input type="file" name="img" class="form-control">
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-primary">Upload</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <p>Images</p>
+    <div class="row">
+        <div class="col-md-3" th:each="im : ${list}">
+            <div class="card">
+                <div class="card-body">
+                    <img th:src="@{'DemoImg/'+${im.imageName}}" width="100%" height="100px">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+</html>

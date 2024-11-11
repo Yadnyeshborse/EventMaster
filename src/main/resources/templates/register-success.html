@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Form Data</title>
+</head>
+<body>
+<div align="center">
+    <h1>Register User Information</h1>
+    <div>
+        <p>Name: <strong th:text="${clubForm.id}"></strong></p>
+        <p>Email: <strong th:text="${clubForm.content}"></strong></p>
+        <p>Password: <strong th:text="${clubForm.photoUrl}"></strong></p>
+        <p>Gender: <strong th:text="${clubForm.title}"></strong></p>
+<!--        <p>Address: <strong th:text="${clubForm.address}"></strong></p>-->
+<!--        <p>Married: <strong th:text="${clubForm.married}"></strong></p>-->
+
+    </div>
+</div>
+</body>
+</html>
