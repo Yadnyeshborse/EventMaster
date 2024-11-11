@@ -6,7 +6,6 @@ import com.rungroup.web.repository.ClubRepository;
 import com.rungroup.web.repository.EventRepositery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +54,7 @@ public class EventService {
         if (existingEvent.isPresent()) {
             Event eventToUpdate = existingEvent.get();
             eventToUpdate.setName(event.getName());
+            eventToUpdate.setPrice(event.getPrice());
             eventToUpdate.setType(event.getType());
             eventToUpdate.setStarttime(event.getStarttime());
             eventToUpdate.setEndtime(event.getEndtime());
@@ -70,4 +70,7 @@ public class EventService {
         eventRepositery.deleteById(id);
     }
 
+    public Optional<Event> findById(Long id) {
+        return eventRepositery.findById(id);
+    }
 }
