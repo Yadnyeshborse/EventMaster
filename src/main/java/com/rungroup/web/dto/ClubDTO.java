@@ -17,7 +17,7 @@ public class ClubDTO {
     private String content;
     private LocalDateTime creationOn;
     private LocalDateTime updateOn;
-    brr
+
 
 
 }
