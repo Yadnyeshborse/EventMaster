@@ -10,6 +10,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,6 +27,7 @@ public class Event {
     private Long id;
     private String name;
     private String type;
+    private String price;
     private LocalDateTime starttime;
     private LocalDateTime endtime;
     @CreationTimestamp
@@ -30,8 +35,12 @@ public class Event {
     @UpdateTimestamp
     private LocalDateTime updateOn;
 
+
     @ManyToOne
     @JoinColumn(name = "club_id",nullable = false)
     private Club club;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Booking> bookings=new HashSet<>();
 
 }

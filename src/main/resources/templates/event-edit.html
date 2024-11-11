@@ -31,6 +31,11 @@
                         <input type="text" class="form-control" placeholder="Event Type" th:field="*{type}" />
                         <p class="text-danger mt-1" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <input type="text" class="form-control" placeholder="Price" th:field="*{price}" />
+                        <p class="text-danger mt-1" th:if="${#fields.hasErrors('type')}" th:errors="*{price}"></p>
+                    </div>
 
                     <!-- Start Time Field -->
                     <div class="mb-3">

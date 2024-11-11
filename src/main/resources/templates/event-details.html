@@ -18,6 +18,7 @@
             <!-- Event information -->
             <h5 class="card-title" th:text="'Event Name: ' + ${event.name}">Event Name</h5>
             <p class="card-text"><strong>Type:</strong> <span th:text="${event.type != null ? event.type : 'N/A'}">Type</span></p>
+            <p class="card-text"><strong>Price:</strong> <span th:text="${event.price != null ? event.price : 'N/A'}">Price</span></p>
             <p class="card-text"><strong>Start Time:</strong> <span th:text="${event.starttime != null ? event.starttime : 'N/A'}">Start Time</span></p>
             <p class="card-text"><strong>End Time:</strong> <span th:text="${event.endtime != null ? event.endtime : 'N/A'}">End Time</span></p>
             <p class="card-text"><strong>Created On:</strong> <span th:text="${event.createOn != null ? event.createOn : 'N/A'}">Created On</span></p>
@@ -26,6 +27,7 @@
             <!-- Back to Club Details button -->
             <a th:href="@{/clubs/{id}(id=${event.club != null ? event.club.id : 0})}" class="btn btn-primary mt-3">Back to Club</a>
             <a th:href="@{/event/{id}/delete(id=${event.id})}" class="btn btn-primary mt-3">Delete</a>
+            <a th:href="@{/booking/{id}/booking/new(id=${event.id})}" class="btn btn-success mt-3">Book This Event</a>
 
         </div>
     </div>
