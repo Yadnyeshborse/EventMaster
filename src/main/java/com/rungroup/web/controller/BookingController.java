@@ -51,7 +51,6 @@ public class BookingController {
     public String createBooking(@PathVariable("id") Long id, @ModelAttribute("booking") Booking booking) {
         bookingService.createBooking(id, booking);
 
-        // Send confirmation email
         Event event = eventService.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
         String subject = "Booking Confirmation";
         String text = "Thank you for booking! Here are the event details:\n" +
@@ -61,7 +60,7 @@ public class BookingController {
                 " Start Time "+event.getStarttime()+ "\n" +
                 " End Time "+event.getEndtime();
 
-        // Assuming Booking has an email field
+        
         emailService.sendEmail(booking.getEmail(), subject, text);
 
         return "redirect:/events/" + id;
