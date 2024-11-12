@@ -3,6 +3,7 @@ package com.rungroup.web.controller;
 import com.rungroup.web.models.Booking;
 import com.rungroup.web.models.Event;
 import com.rungroup.web.service.BookingService;
+import com.rungroup.web.service.EmailService;
 import com.rungroup.web.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,11 +19,13 @@ import java.util.Optional;
 public class BookingController {
     private BookingService bookingService;
     private EventService eventService;
+    private EmailService emailService;
 
     @Autowired
-    public BookingController(BookingService bookingService,EventService eventService) {
+    public BookingController(BookingService bookingService,EventService eventService,EmailService emailService) {
         this.bookingService = bookingService;
         this.eventService=eventService;
+        this.emailService=emailService;
     }
 
 
@@ -38,10 +41,30 @@ public class BookingController {
 
 
 
+//    @PostMapping("/booking/{id}/booking")
+//    public String createBooking(@PathVariable("id") Long id, @ModelAttribute("event") Booking booking) {
+//        bookingService.createBooking(id, booking);
+//        return "booking/{id}/booking";  // Redirect back to the club page
+//    }
+
     @PostMapping("/booking/{id}/booking")
-    public String createBooking(@PathVariable("id") Long id, @ModelAttribute("event") Booking booking) {
+    public String createBooking(@PathVariable("id") Long id, @ModelAttribute("booking") Booking booking) {
         bookingService.createBooking(id, booking);
-        return "redirect:/events/" + id;  // Redirect back to the club page
+
+        // Send confirmation email
+        Event event = eventService.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        String subject = "Booking Confirmation";
+        String text = "Thank you for booking! Here are the event details:\n" +
+                "Event Name: " + event.getName() + "\n" +
+                "Date: " + event.getType() + "\n" +
+                "Price: " + event.getPrice()+ "\n" +
+                " Start Time "+event.getStarttime()+ "\n" +
+                " End Time "+event.getEndtime();
+
+        // Assuming Booking has an email field
+        emailService.sendEmail(booking.getEmail(), subject, text);
+
+        return "redirect:/events/" + id;
     }
 
 }
