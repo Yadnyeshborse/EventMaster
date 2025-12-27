@@ -35,7 +35,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/register/save", "/clubs/**", "/events/**", "/", "/css/**", "/js/**", "/images/**").permitAll()  // Public pages
+                        .requestMatchers("/login", "/register", "/register/save", "/clubs/**", "/events/**", "/", "/css/**", "/js/**", "/images/**", "/getAllClub", "/getAllEvents", "/event/search").permitAll()  // Public pages
                         .anyRequest().authenticated()  // Restrict other requests
                 )
                 .formLogin(form -> form

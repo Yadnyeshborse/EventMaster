@@ -1,41 +1,145 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>List Of Events</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}">
+    <title>All Events - Event Master</title>
 </head>
 <body>
+    <th:block th:replace="~{layout :: header}"></th:block>
 
-<h2 class="mt-5 text-center">List Of Events</h2>
-<div class="d-flex justify-content-center mb-5">
-    <form class="input-group w-50" action="/event/search" method="get">
-        <input name="query" class="form-control" type="search" placeholder="Search Event">
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
-</div>
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="text-gradient">Discover Events</h2>
+        <p>Find and book amazing events</p>
+    </div>
 
-<div class="row mx-auto my-4" style="max-width: 1200px;">
-    <div class="col-md-4" th:each="event : ${event}">
-        <div class="card mb-4" style="border-radius: 15px;">
-            <div class="bg-image hover-overlay ripple ripple-surface ripple-surface-light" data-mdb-ripple-color="light">
-                <img th:src="'data:image/jpeg;base64,' + ${event.club.photoUrl}" class="card-img-top" alt="Image Not Found" style="border-top-left-radius: 15px; border-top-right-radius: 15px;"/>
-                <a href="#!">
-                    <div class="mask"></div>
-                </a>
-            </div>
-            <div class="card-body">
-                <h5 class="card-title" th:text="'Event Name  :'+${event.name}"></h5>
-                <p class="small text-muted" th:text="'Type :'+${event.type}"></p>
-                <p class="text-danger" th:text="'Start Time :'+${event.starttime}"></p>
-                <p class="text-danger" th:text="'Endtime :'+${event.endtime}"></p>
-<!--                <a th:href="@{/clubs/{id}/edit(id=${club.id})}" class="btn btn-primary">Edit</a>-->
-                <a th:href="@{/events/{eventId}(eventId=${event.id})}" class="btn btn-primary">View</a>
-<!--                <a th:href="@{/clubs/{id}/delete(id=${club.id})}" class="btn btn-primary">Delete</a>-->
+    <!-- Search and Filter Section -->
+    <div class="card shadow-custom mb-4">
+        <div class="card-body">
+            <form method="get" th:action="@{/getAllEvents}" class="row g-3">
+                <!-- Search -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Search Events</label>
+                    <input type="text" name="query" class="form-control" 
+                           th:value="${searchQuery}" placeholder="Search by name...">
+                </div>
+                
+                <!-- Filter by Type -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Event Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option th:each="type : ${eventTypes}" 
+                                th:value="${type}" 
+                                th:text="${type}"
+                                th:selected="${selectedType == type}"></option>
+                    </select>
+                </div>
+                
+                <!-- Price Range -->
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Min Price</label>
+                    <input type="number" name="minPrice" class="form-control" 
+                           th:value="${minPrice}" placeholder="Min" step="0.01">
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Max Price</label>
+                    <input type="number" name="maxPrice" class="form-control" 
+                           th:value="${maxPrice}" placeholder="Max" step="0.01">
+                </div>
+                
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Sort Options -->
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <form method="get" th:action="@{/getAllEvents}" class="d-flex gap-2 align-items-center">
+                        <input type="hidden" name="type" th:value="${selectedType}">
+                        <input type="hidden" name="minPrice" th:value="${minPrice}">
+                        <input type="hidden" name="maxPrice" th:value="${maxPrice}">
+                        <label class="form-label mb-0 fw-semibold">Sort by:</label>
+                        <select name="sort" class="form-select form-select-sm" style="width: auto;">
+                            <option value="name" th:selected="${currentSort == 'name'}">Name</option>
+                            <option value="date" th:selected="${currentSort == 'date'}">Date</option>
+                            <option value="price" th:selected="${currentSort == 'price'}">Price</option>
+                        </select>
+                        <select name="order" class="form-select form-select-sm" style="width: auto;">
+                            <option value="asc" th:selected="${currentOrder == 'asc'}">Ascending</option>
+                            <option value="desc" th:selected="${currentOrder == 'desc'}">Descending</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Apply</button>
+                        <a th:href="@{/getAllEvents}" class="btn btn-sm btn-outline-secondary">Reset</a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Events Grid -->
+    <div th:if="${event != null and !event.isEmpty()}" class="events-grid">
+        <div th:each="event : ${event}" class="card slide-up">
+            <div class="position-relative">
+                <img th:if="${event.club != null and event.club.photoUrl != null and !event.club.photoUrl.isEmpty()}" 
+                     th:src="'data:image/jpeg;base64,' + ${event.club.photoUrl}" 
+                     class="card-img-top" 
+                     alt="Event Image"
+                     style="height: 250px; object-fit: cover;">
+                <div th:unless="${event.club != null and event.club.photoUrl != null and !event.club.photoUrl.isEmpty()}" 
+                     class="card-img-top bg-secondary d-flex align-items-center justify-content-center" 
+                     style="height: 250px;">
+                    <i class="bi bi-calendar-event text-white" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title fw-bold" th:text="${event.name}">Event Name</h5>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-tag me-1"></i><span th:text="${event.type != null ? event.type : 'N/A'}">Type</span>
+                </p>
+                <p class="text-success fw-semibold mb-2">
+                    <i class="bi bi-currency-dollar me-1"></i><span th:text="${event.price != null ? event.price : 'Free'}">Price</span>
+                </p>
+                <p class="text-muted small mb-2" th:if="${event.starttime != null}">
+                    <i class="bi bi-clock me-1"></i>
+                    <span th:text="${#temporals.format(event.starttime, 'MMM dd, yyyy HH:mm')}">Start Time</span>
+                </p>
+                <p class="text-muted small mb-3" th:if="${event.endtime != null}">
+                    <i class="bi bi-clock-history me-1"></i>
+                    <span th:text="${#temporals.format(event.endtime, 'MMM dd, yyyy HH:mm')}">End Time</span>
+                </p>
+                <div class="btn-group-custom">
+                    <a th:href="@{/events/{eventId}(eventId=${event.id})}" class="btn btn-primary">
+                        <i class="bi bi-eye me-1"></i>View
+                    </a>
+                    <a th:href="@{/booking/{id}/booking/new(id=${event.id})}" class="btn btn-success">
+                        <i class="bi bi-calendar-check me-1"></i>Book
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${event == null or event.isEmpty()}" class="empty-state">
+        <i class="bi bi-calendar-x" style="font-size: 4rem; color: #9ca3af;"></i>
+        <h3>No Events Found</h3>
+        <p>Try adjusting your filters or create a new event!</p>
+        <a sec:authorize="isAuthenticated()" th:href="@{/getAllClub}" class="btn btn-primary mt-3">
+            <i class="bi bi-plus-circle me-2"></i>Create Event
+        </a>
+    </div>
 </div>
+
+<th:block th:replace="~{layout :: footer}"></th:block>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>

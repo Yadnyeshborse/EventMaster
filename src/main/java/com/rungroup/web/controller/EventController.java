@@ -77,9 +77,110 @@ public class EventController {
     //______________________________________________________________________________________________________
 
     @GetMapping("/getAllEvents")
-    public String getAllEvents(Model model){
-        List<Event> ev=eventService.findAll();
-        model.addAttribute("event",ev);
+    public String getAllEvents(@RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+                              @RequestParam(value = "order", required = false, defaultValue = "asc") String order,
+                              @RequestParam(value = "type", required = false) String type,
+                              @RequestParam(value = "minPrice", required = false) String minPrice,
+                              @RequestParam(value = "maxPrice", required = false) String maxPrice,
+                              Model model){
+        List<Event> events = eventService.findAll();
+        
+        // Filter by type if provided
+        if (type != null && !type.trim().isEmpty()) {
+            events = events.stream()
+                    .filter(e -> e.getType() != null && e.getType().equalsIgnoreCase(type))
+                    .toList();
+        }
+        
+        // Filter by price range if provided
+        if (minPrice != null && !minPrice.trim().isEmpty()) {
+            try {
+                double min = Double.parseDouble(minPrice);
+                events = events.stream()
+                        .filter(e -> {
+                            if (e.getPrice() != null && !e.getPrice().trim().isEmpty()) {
+                                try {
+                                    double price = Double.parseDouble(e.getPrice().replaceAll("[^0-9.]", ""));
+                                    return price >= min;
+                                } catch (NumberFormatException ex) {
+                                    return true;
+                                }
+                            }
+                            return true;
+                        })
+                        .toList();
+            } catch (NumberFormatException e) {
+                // Invalid price, ignore filter
+            }
+        }
+        
+        if (maxPrice != null && !maxPrice.trim().isEmpty()) {
+            try {
+                double max = Double.parseDouble(maxPrice);
+                events = events.stream()
+                        .filter(e -> {
+                            if (e.getPrice() != null && !e.getPrice().trim().isEmpty()) {
+                                try {
+                                    double price = Double.parseDouble(e.getPrice().replaceAll("[^0-9.]", ""));
+                                    return price <= max;
+                                } catch (NumberFormatException ex) {
+                                    return true;
+                                }
+                            }
+                            return true;
+                        })
+                        .toList();
+            } catch (NumberFormatException e) {
+                // Invalid price, ignore filter
+            }
+        }
+        
+        // Sort events
+        final String sortField = sort;
+        final String sortOrder = order;
+        events = events.stream().sorted((e1, e2) -> {
+            int result = 0;
+            switch (sortField) {
+                case "name":
+                    result = (e1.getName() != null ? e1.getName() : "").compareToIgnoreCase(e2.getName() != null ? e2.getName() : "");
+                    break;
+                case "date":
+                    if (e1.getStarttime() != null && e2.getStarttime() != null) {
+                        result = e1.getStarttime().compareTo(e2.getStarttime());
+                    }
+                    break;
+                case "price":
+                    try {
+                        double p1 = e1.getPrice() != null && !e1.getPrice().trim().isEmpty() ? 
+                                Double.parseDouble(e1.getPrice().replaceAll("[^0-9.]", "")) : 0;
+                        double p2 = e2.getPrice() != null && !e2.getPrice().trim().isEmpty() ? 
+                                Double.parseDouble(e2.getPrice().replaceAll("[^0-9.]", "")) : 0;
+                        result = Double.compare(p1, p2);
+                    } catch (NumberFormatException ex) {
+                        result = 0;
+                    }
+                    break;
+                default:
+                    result = 0;
+            }
+            return "desc".equalsIgnoreCase(sortOrder) ? -result : result;
+        }).toList();
+        
+        // Get unique event types for filter dropdown
+        List<String> eventTypes = eventService.findAll().stream()
+                .map(Event::getType)
+                .filter(t -> t != null && !t.trim().isEmpty())
+                .distinct()
+                .sorted()
+                .toList();
+        
+        model.addAttribute("event", events);
+        model.addAttribute("eventTypes", eventTypes);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentOrder", order);
+        model.addAttribute("selectedType", type);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
         return "getAllEvent";
     }
 
