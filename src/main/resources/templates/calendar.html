@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}">
+    <title>Event Calendar - Event Master</title>
+</head>
+<body>
+    <th:block th:replace="~{layout :: header}"></th:block>
+
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="text-gradient">Event Calendar</h2>
+        <p>View events by month</p>
+    </div>
+
+    <!-- Calendar Navigation -->
+    <div class="card shadow-custom mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <a th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}" class="btn btn-outline-primary">
+                    <i class="bi bi-chevron-left me-2"></i>Previous Month
+                </a>
+                <h4 class="mb-0 fw-bold" th:text="${yearMonth.getMonth().toString() + ' ' + yearMonth.getYear()}">Month Year</h4>
+                <a th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}" class="btn btn-outline-primary">
+                    Next Month<i class="bi bi-chevron-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="card shadow-custom">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Sun</th>
+                            <th class="text-center">Mon</th>
+                            <th class="text-center">Tue</th>
+                            <th class="text-center">Wed</th>
+                            <th class="text-center">Thu</th>
+                            <th class="text-center">Fri</th>
+                            <th class="text-center">Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="week : ${calendarGrid}">
+                            <td th:each="day : ${week}" 
+                                th:class="${day != null and day.getMonthValue() == yearMonth.getMonthValue() ? (day.equals(today) ? 'bg-info bg-opacity-25' : '') : 'text-muted bg-light'}"
+                                style="height: 120px; vertical-align: top; padding: 8px; width: 14.28%;">
+                                <div th:if="${day != null}" class="fw-bold mb-2" th:text="${day.getDayOfMonth()}">1</div>
+                                <div th:if="${day != null and eventsByDate != null and eventsByDate.containsKey(day)}" class="small">
+                                    <div th:each="event : ${eventsByDate.get(day)}" 
+                                         class="mb-1">
+                                        <a th:href="@{/events/{id}(id=${event.id})}" 
+                                           class="badge bg-primary text-decoration-none d-block text-truncate"
+                                           th:text="${event.name}"
+                                           style="max-width: 100%; font-size: 0.7rem;"
+                                           title="View Event">
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events List for the Month -->
+    <div class="card shadow-custom mt-4" th:if="${monthEvents != null and !monthEvents.isEmpty()}">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Events in <span th:text="${yearMonth.getMonth().toString() + ' ' + yearMonth.getYear()}"></span></h5>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                <div th:each="event : ${monthEvents}" class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bold" th:text="${event.name}">Event Name</h6>
+                            <p class="mb-1 text-muted small">
+                                <i class="bi bi-calendar me-1"></i>
+                                <span th:if="${event.starttime != null}" 
+                                      th:text="${#temporals.format(event.starttime, 'MMM dd, yyyy HH:mm')}">Date</span>
+                                <span th:if="${event.type != null}">
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-tag me-1"></i><span th:text="${event.type}"></span>
+                                </span>
+                                <span th:if="${event.price != null}">
+                                    <span class="mx-2">|</span>
+                                    <i class="bi bi-currency-dollar me-1"></i><span th:text="${event.price}"></span>
+                                </span>
+                            </p>
+                        </div>
+                        <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-eye me-1"></i>View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${monthEvents == null or monthEvents.isEmpty()}" class="empty-state">
+        <i class="bi bi-calendar-x" style="font-size: 4rem; color: #9ca3af;"></i>
+        <h3>No Events This Month</h3>
+        <p>There are no events scheduled for this month.</p>
+    </div>
+</div>
+
+<th:block th:replace="~{layout :: footer}"></th:block>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
