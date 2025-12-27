@@ -34,10 +34,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity
-                .authorizeRequests()
-                .requestMatchers("/login", "/register", "/register/save", "/clubs/", "/css/**", "/js/**").permitAll()  // Public pages
-                .anyRequest().authenticated()  // Restrict other requests
-                .and()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/register", "/register/save", "/clubs/**", "/events/**", "/", "/css/**", "/js/**", "/images/**").permitAll()  // Public pages
+                        .anyRequest().authenticated()  // Restrict other requests
+                )
                 .formLogin(form -> form
                         .loginPage("/login")  // Custom login page
                         .loginProcessingUrl("/login")  // URL Spring Security uses to process the login
@@ -47,6 +47,7 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/login?logout=true")
                         .permitAll()
                 );
 

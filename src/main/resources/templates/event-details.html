@@ -1,37 +1,119 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Event Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}">
+    <title>Event Details - Event Master</title>
 </head>
 <body>
+    <div th:replace="~{layout :: header}"></div>
 
-<div class="container mt-5">
-    <h2 class="text-center">Event Details</h2>
+<div class="container my-5">
+    <!-- Success/Error Messages -->
+    <div th:if="${param.bookingSuccess}" class="alert alert-success fade-in">
+        <i class="bi bi-check-circle me-2"></i>Booking created successfully! Check your email for confirmation.
+    </div>
+    <div th:if="${error}" class="alert alert-danger fade-in">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+    </div>
 
-    <div class="card mt-4" style="border-radius: 15px;">
-        <!-- Event image -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Event Details Card -->
+            <div class="card shadow-custom-lg slide-up">
+                <div class="card-body p-5">
+                    <!-- Event Header -->
+                    <div class="text-center mb-4">
+                        <i class="bi bi-calendar-event text-primary" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3 fw-bold" th:text="${event.name}">Event Name</h2>
+                    </div>
 
+                    <hr class="my-4">
 
-        <div class="card-body">
-            <!-- Event information -->
-            <h5 class="card-title" th:text="'Event Name: ' + ${event.name}">Event Name</h5>
-            <p class="card-text"><strong>Type:</strong> <span th:text="${event.type != null ? event.type : 'N/A'}">Type</span></p>
-            <p class="card-text"><strong>Price:</strong> <span th:text="${event.price != null ? event.price : 'N/A'}">Price</span></p>
-            <p class="card-text"><strong>Start Time:</strong> <span th:text="${event.starttime != null ? event.starttime : 'N/A'}">Start Time</span></p>
-            <p class="card-text"><strong>End Time:</strong> <span th:text="${event.endtime != null ? event.endtime : 'N/A'}">End Time</span></p>
-            <p class="card-text"><strong>Created On:</strong> <span th:text="${event.createOn != null ? event.createOn : 'N/A'}">Created On</span></p>
-            <p class="card-text"><strong>Updated On:</strong> <span th:text="${event.updateOn != null ? event.updateOn : 'N/A'}">Updated On</span></p>
+                    <!-- Event Information -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="bi bi-tag-fill text-primary me-3 mt-1" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">Type</h6>
+                                    <p class="mb-0 fw-semibold" th:text="${event.type != null ? event.type : 'N/A'}">Type</p>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Back to Club Details button -->
-            <a th:href="@{/clubs/{id}(id=${event.club != null ? event.club.id : 0})}" class="btn btn-primary mt-3">Back to Club</a>
-            <a th:href="@{/event/{id}/delete(id=${event.id})}" class="btn btn-primary mt-3">Delete</a>
-            <a th:href="@{/booking/{id}/booking/new(id=${event.id})}" class="btn btn-success mt-3">Book This Event</a>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="bi bi-currency-dollar text-success me-3 mt-1" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">Price</h6>
+                                    <p class="mb-0 fw-semibold" th:text="${event.price != null ? event.price : 'Free'}">Price</p>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="bi bi-clock-fill text-info me-3 mt-1" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">Start Time</h6>
+                                    <p class="mb-0 fw-semibold" th:text="${event.starttime != null ? #temporals.format(event.starttime, 'MMM dd, yyyy HH:mm') : 'N/A'}">Start Time</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="bi bi-clock-history text-warning me-3 mt-1" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">End Time</h6>
+                                    <p class="mb-0 fw-semibold" th:text="${event.endtime != null ? #temporals.format(event.endtime, 'MMM dd, yyyy HH:mm') : 'N/A'}">End Time</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" th:if="${bookingCount != null}">
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="bi bi-people-fill text-secondary me-3 mt-1" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Bookings</h6>
+                                    <p class="mb-0 fw-semibold">
+                                        <span class="badge bg-primary" th:text="${bookingCount}">0</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Action Buttons -->
+                    <div class="btn-group-custom">
+                        <a th:href="@{/clubs/{id}(id=${event.club != null ? event.club.id : 0})}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Club
+                        </a>
+                        <a th:href="@{/booking/{id}/booking/new(id=${event.id})}" class="btn btn-success">
+                            <i class="bi bi-calendar-check me-2"></i>Book This Event
+                        </a>
+                        <a sec:authorize="isAuthenticated()" th:href="@{/events/{eventId}/bookings(eventId=${event.id})}" class="btn btn-info text-white">
+                            <i class="bi bi-list-ul me-2"></i>View Bookings
+                        </a>
+                        <a sec:authorize="isAuthenticated()" th:href="@{/event/{id}/edit(id=${event.id})}" class="btn btn-primary">
+                            <i class="bi bi-pencil me-2"></i>Edit
+                        </a>
+                        <a sec:authorize="isAuthenticated()" th:href="@{/event/{id}/delete(id=${event.id})}" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this event?')">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<div th:replace="~{layout :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>

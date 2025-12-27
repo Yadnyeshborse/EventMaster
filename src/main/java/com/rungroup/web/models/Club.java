@@ -23,8 +23,14 @@ public class Club {
     private Long id;
     @NotBlank(message = "Title is required")
     private String title;
+    
+    @Column(length = 10000) // Increased length for base64 encoded images
     private String photoUrl;
+    
+    @Column(length = 2000)
     private String content;
+    
+    @Column(length = 2000)
     private String description;
 
     @CreationTimestamp

@@ -1,42 +1,94 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Get All Clubs</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}">
+    <title>All Clubs - Event Master</title>
 </head>
 <body>
+    <th:block th:replace="~{layout :: header}"></th:block>
 
-<div th:fragment="body">
-    <h2 class="mt-5 text-center">List Of Clubs</h2>
-    <div class="d-flex justify-content-center mb-5">
-        <form class="input-group w-50" action="/clubs/search" method="get">
-            <input name="query" class="form-control" type="search" placeholder="Search Running Clubs">
-            <button type="submit" class="btn btn-primary">Search</button>
+<div th:fragment="body" class="container my-5">
+    <!-- Success/Error Messages -->
+    <div th:if="${param.created}" class="alert alert-success fade-in">
+        <i class="bi bi-check-circle me-2"></i>Club created successfully!
+    </div>
+    <div th:if="${param.updated}" class="alert alert-success fade-in">
+        <i class="bi bi-check-circle me-2"></i>Club updated successfully!
+    </div>
+    <div th:if="${param.deleted}" class="alert alert-success fade-in">
+        <i class="bi bi-check-circle me-2"></i>Club deleted successfully!
+    </div>
+    <div th:if="${error}" class="alert alert-danger fade-in">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="text-gradient">Discover Running Clubs</h2>
+        <p>Find and join amazing running communities near you</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <form action="/clubs/search" method="get" class="d-flex">
+            <input name="query" class="form-control me-2" type="search" placeholder="Search clubs by name, description..." aria-label="Search">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search me-2"></i>Search
+            </button>
         </form>
     </div>
 
-    <div class="row mx-auto my-4" style="max-width: 1200px;">
-        <div class="col-md-4" th:each="club : ${clubs}">
-            <div class="card mb-4" style="border-radius: 15px;">
-                <div class="bg-image hover-overlay ripple ripple-surface ripple-surface-light" data-mdb-ripple-color="light">
-                    <img th:src="'data:image/jpeg;base64,' + ${club.photoUrl}" class="card-img-top" alt="Image Not Found" style="border-top-left-radius: 15px; border-top-right-radius: 15px;"/>
-                    <a href="#!">
-                        <div class="mask"></div>
-                    </a>
+    <!-- Clubs Grid -->
+    <div th:if="${clubs != null and !clubs.isEmpty()}" class="clubs-grid">
+        <div th:each="club : ${clubs}" class="card slide-up">
+            <div class="position-relative">
+                <img th:if="${club.photoUrl != null and !club.photoUrl.isEmpty()}" 
+                     th:src="'data:image/jpeg;base64,' + ${club.photoUrl}" 
+                     class="card-img-top" 
+                     alt="Club Image"
+                     style="height: 250px; object-fit: cover;">
+                <div th:unless="${club.photoUrl != null and !club.photoUrl.isEmpty()}" 
+                     class="card-img-top bg-secondary d-flex align-items-center justify-content-center" 
+                     style="height: 250px;">
+                    <i class="bi bi-image text-white" style="font-size: 3rem;"></i>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title" th:text="'Title: ' + ${club.title}"></h5>
-                    <p class="small text-muted" th:text="'Description: ' + ${club.description}"></p>
-                    <p class="text-danger" th:text="'Content: ' + ${club.content}"></p>
-                    <a th:href="@{/clubs/{id}/edit(id=${club.id})}" class="btn btn-primary">Edit</a>
-                    <a th:href="@{/clubs/{id}(id=${club.id})}" class="btn btn-primary">View</a>
-                    <a th:href="@{/clubs/{id}/delete(id=${club.id})}" class="btn btn-primary">Delete</a>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title fw-bold" th:text="${club.title}">Club Title</h5>
+                <p class="card-text text-muted" th:if="${club.description != null}" th:text="${club.description}">Description</p>
+                <p class="card-text" th:if="${club.content != null}" th:text="${club.content}">Content</p>
+                <div class="btn-group-custom mt-3">
+                    <a th:href="@{/clubs/{id}(id=${club.id})}" class="btn btn-primary">
+                        <i class="bi bi-eye me-1"></i>View
+                    </a>
+                    <a sec:authorize="isAuthenticated()" th:href="@{/clubs/{id}/edit(id=${club.id})}" class="btn btn-secondary">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <a sec:authorize="isAuthenticated()" th:href="@{/clubs/{id}/delete(id=${club.id})}" 
+                       class="btn btn-danger" 
+                       onclick="return confirm('Are you sure you want to delete this club?')">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Empty State -->
+    <div th:if="${clubs == null or clubs.isEmpty()}" class="empty-state">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: #9ca3af;"></i>
+        <h3>No Clubs Found</h3>
+        <p>Be the first to create a running club!</p>
+        <a sec:authorize="isAuthenticated()" th:href="@{/saveClubs}" class="btn btn-primary mt-3">
+            <i class="bi bi-plus-circle me-2"></i>Create Club
+        </a>
+    </div>
 </div>
+
+<th:block th:replace="~{layout :: footer}"></th:block>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>

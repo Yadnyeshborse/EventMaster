@@ -18,8 +18,15 @@ public class ImageAndDataSaveInDBDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
+    @Column(length = 200)
     private String productName;
+    
+    @Column(length = 1000)
     private String productDesc;
+    
     private Long price;
+    
+    @Column(length = 10000) // Increased length for base64 encoded images
     private String image;
 }

@@ -50,33 +50,39 @@ public class ClubController {
 
 
     @PostMapping("clubs/{id}/edit")
-    public String editClubForm(@PathVariable("id") Long id,@RequestParam("photo") MultipartFile photo,
-                               @Valid @ModelAttribute("club") Club club
-    , BindingResult result){
+    public String editClubForm(@PathVariable("id") Long id,
+                               @RequestParam(value = "photo", required = false) MultipartFile photo,
+                               @Valid @ModelAttribute("club") Club club,
+                               BindingResult result, Model model){
 
         if(result.hasErrors()){
             return "clubs-edit";
         }
 
-        // If an image is provided, update it
-        //if we try to change any tesxt other than image than it is is not showing image so below code need ed to be added
-        if (!photo.isEmpty()) {
-            try {
-                club.setPhotoUrl(Base64.getEncoder().encodeToString(photo.getBytes()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try {
+            // If an image is provided, update it
+            //if we try to change any text other than image than it is not showing image so below code needed to be added
+            if (photo != null && !photo.isEmpty()) {
+                try {
+                    club.setPhotoUrl(Base64.getEncoder().encodeToString(photo.getBytes()));
+                } catch (IOException e) {
+                    model.addAttribute("error", "Failed to process image: " + e.getMessage());
+                    return "clubs-edit";
+                }
+            } else {
+                // Fetch the existing club and retain the existing photoUrl if no new image was uploaded
+                Club existingClub = clubServices.findClubById(id);
+                club.setPhotoUrl(existingClub.getPhotoUrl());
             }
-        } else {
-            // Fetch the existing club and retain the existing photoUrl if no new image was uploaded
-            Club existingClub = clubServices.findClubById(id);
-            club.setPhotoUrl(existingClub.getPhotoUrl());
+
+            club.setId(id);
+            clubServices.updateClub(club);
+
+            return "redirect:/getAllClub?updated=true";
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to update club: " + e.getMessage());
+            return "clubs-edit";
         }
-
-
-        club.setId(id);
-        clubServices.updateClub(club);
-
-        return "redirect:/getAllClub";
     }
 //____________________________________________________________________________________________________________
     @GetMapping("/saveClubs")
@@ -87,13 +93,21 @@ public class ClubController {
     }
 
     @PostMapping("/saveClubs")
-    public String saveClubs(@RequestParam("file") MultipartFile file,
+    public String saveClubs(@RequestParam(value = "file", required = false) MultipartFile file,
                                  @RequestParam("title") String title,
                                  @RequestParam("content") String content,
-                            @RequestParam("description") String description
+                            @RequestParam("description") String description,
+                            Model model
     ){
-        clubServices.saveClubs(file,title,content,description);
-        return "redirect:/getAllClub";
+        try {
+            clubServices.saveClubs(file, title, content, description);
+            return "redirect:/getAllClub?created=true";
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to save club: " + e.getMessage());
+            Club club = new Club();
+            model.addAttribute("club", club);
+            return "saveClubs";
+        }
     }
 //_____________________________________________________________________________________________________________
     @GetMapping("/getAllClub")
@@ -113,9 +127,13 @@ public class ClubController {
 
     @GetMapping("/clubs/{id}/delete")
     public String deleteClub(@PathVariable("id")Long id,Model model){
-       Club club1= clubServices.deleteClub(id);
-       model.addAttribute("club",club1);
-        return "redirect:/getAllClub";
+        try {
+            clubServices.deleteClub(id);
+            return "redirect:/getAllClub?deleted=true";
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to delete club: " + e.getMessage());
+            return "redirect:/getAllClub";
+        }
     }
 
     //search
@@ -133,7 +151,7 @@ public class ClubController {
     public String index(Model model) {
         List<Club> list=clubRepository.findAll();
         model.addAttribute("list",list);
-        return "layout";
+        return "home";
     }
 
 

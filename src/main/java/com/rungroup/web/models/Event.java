@@ -1,6 +1,7 @@
 package com.rungroup.web.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,10 +26,21 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
+    @NotBlank(message = "Event name is required")
+    @Column(length = 500)
     private String name;
+    
+    @Column(length = 200)
     private String type;
+    
+    @Column(length = 50)
     private String price;
+    
+    @NotNull(message = "Start time is required")
     private LocalDateTime starttime;
+    
+    @NotNull(message = "End time is required")
     private LocalDateTime endtime;
     @CreationTimestamp
     private LocalDateTime createOn;
